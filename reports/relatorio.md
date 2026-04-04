@@ -72,19 +72,19 @@ A tabela abaixo apresenta as medidas centrais e de dispersão para o conjunto de
 ### 3.2 Respostas às Questões de Pesquisa (Correlação de Spearman)
 
 **RQ01: Popularidade vs. Qualidade**
-![Correlação de Spearman entre o total de Estrelas e as medianas de CBO, DIT e LCOM](figures/rq_01.jpg)
+![Correlação de Spearman entre o total de Estrelas e as medianas de CBO, DIT e LCOM](figures/rq_01.png)
 > *(Legenda: Figura 2 - Correlação de Spearman entre o total de Estrelas e as medianas de CBO, DIT e LCOM).*
 
 **RQ02: Maturidade vs. Qualidade**
-![Dispersão evidenciando a ausência de correlação estatisticamente significativa entre a Idade do repositório e a qualidade estrutural](figures/rq_02.jpg)
+![Dispersão evidenciando a ausência de correlação estatisticamente significativa entre a Idade do repositório e a qualidade estrutural](figures/rq_02.png)
 > *(Legenda: Figura 3 - Dispersão evidenciando a ausência de correlação estatisticamente significativa entre a Idade do repositório e a qualidade estrutural).*
 
 **RQ03: Atividade vs. Qualidade**
-![Análise do impacto nulo do número de Releases nas métricas de Acoplamento e Coesão](figures/rq_03.jpg)
+![Análise do impacto nulo do número de Releases nas métricas de Acoplamento e Coesão](figures/rq_03.png)
 > *(Legenda: Figura 4 - Análise do impacto nulo do número de Releases nas métricas de Acoplamento e Coesão).*
 
 **RQ04: Tamanho vs. Qualidade**
-![Forte correlação positiva e significativa (p-value < 0.05) entre o tamanho absoluto (LOC) e o aumento do Acoplamento (CBO)](figures/rq_04.jpg)
+![Forte correlação positiva e significativa (p-value < 0.05) entre o tamanho absoluto (LOC) e o aumento do Acoplamento (CBO)](figures/rq_04.png)
 > *(Legenda: Figura 5 - Forte correlação positiva e significativa (p-value < 0.05) entre o tamanho absoluto (LOC) e o aumento do Acoplamento (CBO)).*
 
 ### 3.3 Análise Multivariável Combinada
