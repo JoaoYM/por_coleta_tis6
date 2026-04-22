@@ -1,0 +1,39 @@
+# Busca PRs específicos de um repositório dentro de uma janela de tempo
+query($prQuery: String!, $cursor: String) {
+  search(query: $prQuery, type: ISSUE, first: 30, after: $cursor) {
+    pageInfo {
+      endCursor
+      hasNextPage
+    }
+    edges {
+      node {
+        ... on PullRequest {
+          number
+          createdAt
+          author {
+            login
+          }
+          # Extrai as revisões oficiais (Aprovado, Solicitou Mudanças, etc)
+          reviews(first: 50) {
+            nodes {
+              author {
+                login
+              }
+              createdAt
+              state
+            }
+          }
+          # Extrai comentários gerais na linha do tempo do PR
+          comments(first: 50) {
+            nodes {
+              author {
+                login
+              }
+              createdAt
+            }
+          }
+        }
+      }
+    }
+  }
+}
