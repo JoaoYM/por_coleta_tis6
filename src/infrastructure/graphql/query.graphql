@@ -1,5 +1,6 @@
-query($cursor: String) {
-  search(query: "language:Java sort:stars-desc", type: REPOSITORY, first: 10, after: $cursor) {
+# Busca repositórios pela linguagem, estrelas e data de push
+query($queryString: String!, $cursor: String) {
+  search(query: $queryString, type: REPOSITORY, first: 20, after: $cursor) {
     pageInfo {
       endCursor
       hasNextPage
@@ -7,12 +8,17 @@ query($cursor: String) {
     edges {
       node {
         ... on Repository {
-          name
+          nameWithOwner # Nome completo (owner/repo) para chamadas futuras
           url
           stargazerCount
           createdAt
-          updatedAt
-          releases(first: 1) {
+          pushedAt
+          # OTIMIZAÇÃO: Conta apenas os Pull Requests que foram MESCLADOS (Merged)
+          pullRequests(states: [MERGED]) {
+            totalCount
+          }
+          # Pega uma amostra de colaboradores para checar se tem >= 50
+          mentionableUsers(first: 1) {
             totalCount
           }
         }

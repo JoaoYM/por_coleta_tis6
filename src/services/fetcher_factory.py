@@ -1,7 +1,7 @@
 from typing import Literal, Dict, Type
-from ..interfaces.repository_fetcher import RepositoryFetcher
-from ..infrastructure.fetchers.http_repository_fetcher import HttpRepositoryFetcher
-from ..infrastructure.fetchers.cli_repository_fetcher import CliRepositoryFetcher
+from src.interfaces.repository_fetcher import RepositoryFetcher
+from src.infrastructure.factories.http_repository_fetcher import HttpRepositoryFetcher
+from src.infrastructure.factories.cli_repository_fetcher import CliRepositoryFetcher
 
 class RepositoryFetcherFactory:
     _FETCHERS: Dict[str, Type[RepositoryFetcher]] = {

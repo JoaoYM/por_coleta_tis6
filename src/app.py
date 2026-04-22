@@ -1,88 +1,107 @@
 import sys
+from pathlib import Path
+
+# Como o app.py está DENTRO de src, a raiz do projeto é um nível acima
+root_dir = Path(__file__).resolve().parent.parent
+sys.path.append(str(root_dir))
+
+# Imports atualizados com base na sua estrutura real
+from src.services.ReviewDataExtractor import ReviewDataExtractor
 from src.services.fetcher_factory import RepositoryFetcherFactory
 from src.services.repository_manager import RepositoryManager
-from src.utils.output_formatter import RepositoryOutputFormatter
-from src.services.metrics_collector import MetricsCollector
+from services.graph_modeler import GraphModeler
+from src.services.statistical_analyzer import StatisticalAnalyzer
+from src.services.visualizer import DataVisualizer
 
-def display_menu(options: list):
-    print("=" * 60)
-    print(" 🚀 LABORATÓRIO 02 - COLETOR DE MÉTRICAS (JAVA) ")
-    print("=" * 60)
-    print("\nEscolha uma opção:")
+def run_phase_1():
+    print("\n" + "="*50)
+    print(" FASE 1: DESCOBERTA E FILTRAGEM (REPOSITÓRIOS)")
+    print("="*50)
     
-    # Lista dinamicamente as opções de coleta de dados
-    for i, method in enumerate(options, 1):
-        label = "🐙 Coletar Top 1.000 Repositórios (GitHub CLI)" if method == 'cli' else "🌐 Coletar Top 1.000 Repositórios (API Direta)"
-        print(f"  [{i}] {label}")
+    fetcher = RepositoryFetcherFactory.create('http')
+    manager = RepositoryManager(fetcher)
     
-    # Atualizado para refletir o processamento em lote do Lab02S02
-    next_opt = len(options) + 1
-    print(f"  [{next_opt}] ⚙️  Executar Extração CK em Lote (1.000 Repositórios - Lab02S02)")
+    print("🚀 Iniciando Prova de Conceito (POC) - Fase 1: 100 Repositórios")
+    poc_repos = manager.fetch_poc_repositories(repos_per_lang=20)
     
-    print("\n  [0] Sair")
-    print("-" * 60)
+    manager.display_results(poc_repos)
+    manager.save_consolidated_data(poc_repos, filename="poc_repos_merged_filter.csv")
 
-def run_collection(method: str, save_json: bool, save_csv: bool):
-    """Encapsulates execution to keep main loop clean"""
-    try:
-        print("\n" + "=" * 40)
-        print(f"Iniciando coleta via {method.upper()}...")
-        print("=" * 40 + "\n")
-        
-        fetcher = RepositoryFetcherFactory.create(method)
-        manager = RepositoryManager(fetcher)
-        
-        repos = manager.fetch_repositories(pages=100, save_json=save_json, save_csv=save_csv)
-        manager.display_results(repos)
-        
-    except Exception as e:
-        RepositoryOutputFormatter.print_error(f"Erro na execução: {e}")
 
-def run_ck_analysis():
-    """Executa o script de clone, coleta do CK e sumarização (Lote)"""
-    try:
-        print("\n" + "=" * 40)
-        print("Iniciando Automação de Clone e Extração de Métricas (Em Lote)...")
-        print("=" * 40 + "\n")
-        
-        collector = MetricsCollector()
-        # Chamada atualizada para o método de processamento em lote
-        collector.process_all_repositories()
-        
-    except Exception as e:
-        RepositoryOutputFormatter.print_error(f"Erro ao executar a automação: {e}")
-
-def main(save_json=False, save_csv=False):
-    # Obtém os métodos de coleta disponíveis na Factory
-    available_methods = RepositoryFetcherFactory.get_available_methods()
-    ck_option = str(len(available_methods) + 1)
+def run_phase_2():
+    print("\n" + "="*50)
+    print(" FASE 2: EXTRAÇÃO DE PULL REQUESTS E INTERAÇÕES")
+    print("="*50)
     
+    print("🚀 Lendo dados de 'poc_repos_merged_filter.csv'...")
+    extractor = ReviewDataExtractor()
+    extractor.extract_prs_from_csv()
+
+def run_phase_3():
+    print("\n" + "="*60)
+    print(" FASE 3: MODELAGEM DE GRAFOS E CENTRALIDADE")
+    print("="*60)
+    
+    modeler = GraphModeler()
+    modeler.build_and_calculate()
+
+def run_phase_4():
+    print("\n" + "="*60)
+    print(" FASE 4: ANÁLISE ESTATÍSTICA (RQs)")
+    print("="*60)
+    
+    analyzer = StatisticalAnalyzer()
+    analyzer.run_analysis()
+
+# Geração de gráficos analíticos
+def run_phase_5():
+    print("\n" + "="*60)
+    print(" FASE 5: GERAÇÃO DE GRÁFICOS ANALÍTICOS")
+    print("="*60)
+    visualizer = DataVisualizer()
+    visualizer.generate_analytical_plots()
+
+
+def main():
     while True:
-        display_menu(available_methods)
-        choice = input("\n👉 Digite a opção: ").strip()
-
-        if choice == '0':
-            print("\n👋 Encerrando. Até logo!")
-            break
-            
-        # Verifica se escolheu um método de coleta
-        if choice.isdigit() and 1 <= int(choice) <= len(available_methods):
-            selected_method = available_methods[int(choice) - 1]
-            run_collection(selected_method, save_json, save_csv)
+        print("\n🛠️  MENU DE EXECUÇÃO DA POC")
+        print("1. Executar o pipeline completo (Fase 1 -> Fase 2 -> Fase 3 -> Fase 4 -> Fase 5)")
+        print("2. Executar APENAS a Fase 1 (Coleta de Repositórios)")
+        print("3. Executar APENAS a Fase 2 (Extração de PRs do CSV existente)")
+        print("4. Executar APENAS a Fase 3 (Modelagem de Grafos e Centralidade)")
+        print("5. Executar APENAS a Fase 4 (Análise Estatística)")
+        print("6. Executar APENAS a Fase 5 (Geração de Gráficos Analíticos)")
+        print("0. Sair")
         
-        # Verifica se escolheu a extração em lote do CK
-        elif choice == ck_option:
-            run_ck_analysis()
-            
+        escolha = input("\nEscolha a opção desejada (0-6): ").strip()
+        
+        if escolha == '1':
+            run_phase_1()
+            run_phase_2()
+            run_phase_3()
+            run_phase_4()
+            run_phase_5()
+            break
+        elif escolha == '2':
+            run_phase_1()
+            break
+        elif escolha == '3':
+            run_phase_2()
+            break
+        elif escolha == '4':
+            run_phase_3()
+            break
+        elif escolha == '5':
+            run_phase_4()
+            break
+        elif escolha == '6':
+            run_phase_5()
+            break
+        elif escolha == '0':
+            print("Saindo do programa...")
+            sys.exit(0)
         else:
-            print(f"\n❌ Opção inválida! Digite de 1 a {ck_option} ou 0.")
+            print("❌ Opção inválida. Digite um número de 0 a 5.")
 
 if __name__ == "__main__":
-    should_save_json = "--json" in sys.argv
-    should_save_csv = "--csv" in sys.argv
-    try:
-        # Por padrão, mantemos save_csv=True pois precisamos do arquivo para a base do lote
-        main(save_json=should_save_json, save_csv=True)
-    except KeyboardInterrupt:
-        print("\n\n⚠️ Interrompido pelo usuário. Saindo...")
-        sys.exit(0)
+    main()

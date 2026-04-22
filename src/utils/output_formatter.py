@@ -34,17 +34,17 @@ class RepositoryOutputFormatter:
     @staticmethod
     @contextmanager
     def fetch_progress_context(total_pages: int):
-        """Context Manager que isola a lógica visual da barra de progresso."""
+        """Context Manager atualizado para evitar erros de contagem de páginas."""
         with Progress(
             SpinnerColumn(),
             TextColumn("[progress.description]{task.description}"),
             BarColumn(),
             TaskProgressColumn(),
-            TextColumn("({task.completed}/{task.total} págs)"),
+            # Alterado de {task.completed}/{task.total} para apenas o contador de sucessos
+            TextColumn("({task.completed} págs processadas)"),
             TimeElapsedColumn()
         ) as progress:
             task = progress.add_task("[cyan]Minerando GitHub API...", total=total_pages)
-            # Retorna apenas o objeto seguro de atualização, sem vazar o "rich" para fora
             yield _ProgressUpdater(progress, task)
             
     @staticmethod
@@ -54,26 +54,26 @@ class RepositoryOutputFormatter:
         console.print(f"\n🎯 REPOSITÓRIOS COLETADOS - TOTAL: {len(repos)}", 
                      style="bold cyan")
         
-        table = Table(title="Detalhes dos Repositórios Java", box=box.ROUNDED, 
+        table = Table(title="Detalhes dos Repositórios (POC)", box=box.ROUNDED, 
                      show_lines=True, header_style="bold magenta")
         
         table.add_column("Nº", justify="center", style="dim")
         table.add_column("Nome", style="cyan", no_wrap=False, overflow="fold")
-        table.add_column("URL", style="blue", no_wrap=False, overflow="fold")
         table.add_column("Stars", justify="right", style="yellow")
         table.add_column("Criado", justify="center", style="dim")
-        table.add_column("Atualizado", justify="center", style="dim")
-        table.add_column("Releases", justify="right", style="magenta")
+        table.add_column("Último Push", justify="center", style="dim")
+        table.add_column("PRs (Merged)", justify="right", style="green")
+        table.add_column("Devs", justify="right", style="magenta")
         
         for i, repo in enumerate(repos, 1):
             table.add_row(
                 str(i),
-                repo['name'],
-                repo['url'],
-                f"{repo['stargazerCount']:,}",
-                RepositoryOutputFormatter._format_date_to_brazilian(repo['createdAt']),
-                RepositoryOutputFormatter._format_date_to_brazilian(repo['updatedAt']),
-                f"{repo.get('releases_count', 0):,}"
+                repo.get('name', 'N/A'),
+                f"{repo.get('stargazerCount', 0):,}",
+                RepositoryOutputFormatter._format_date_to_brazilian(repo.get('createdAt', '')),
+                RepositoryOutputFormatter._format_date_to_brazilian(repo.get('pushedAt', '')),
+                f"{repo.get('total_prs', 0):,}",
+                f"{repo.get('contributor_count', 0):,}"
             )
         
         console.print(table)
@@ -83,15 +83,15 @@ class RepositoryOutputFormatter:
         console = Console()
         
         total_stars = sum(repo.get('stargazerCount', 0) for repo in repos)
-        total_releases = sum(repo.get('releases_count', 0) for repo in repos)
+        total_prs = sum(repo.get('total_prs', 0) for repo in repos)
         
-        stats_table = Table(title="📊 Totais Gerais (Processo)", box=box.ROUNDED,
+        stats_table = Table(title="📊 Totais Gerais (POC)", box=box.ROUNDED,
                            header_style="bold cyan")
         stats_table.add_column("Métrica", style="cyan")
         stats_table.add_column("Valor", justify="right", style="yellow")
         
-        stats_table.add_row("Estrelas Acumuladas (Popularidade)", f"{total_stars:,}")
-        stats_table.add_row("Releases Totais (Atividade)", f"{total_releases:,}")
+        stats_table.add_row("Estrelas Acumuladas", f"{total_stars:,}")
+        stats_table.add_row("Pull Requests (Merged)", f"{total_prs:,}")
         
         console.print(stats_table)
     
